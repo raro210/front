@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
-import ProfileCard from '../components/ProfileCard';
 import axios from 'axios';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000';
@@ -104,18 +103,6 @@ const SectionTitle = styled.h2`
   }
 `;
 
-const CardContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  gap: 30px;
-
-  @media (max-width: 768px) {
-    flex-direction: column;
-    align-items: center;
-    gap: 15px;
-  }
-`;
-
 // 💡 지도와 게시물 결합 섹션 스타일
 const CombinedSection = styled.section`
   width: 100%;
@@ -207,13 +194,6 @@ const PostTitle = styled.h4`
   text-overflow: ellipsis;
 `;
 
-// 💡 최신 게시물 더미 데이터
-const mockPosts = [
-  { id: 1, title: '주말 기타 레슨 모집: 왕초보 환영', talent: '음악/기타', views: 45 },
-  { id: 2, title: '포토샵 기초 원데이 클래스 (3시간 완성)', talent: '디자인/편집', views: 88 },
-  { id: 3, title: '영어 회화 파트너 구해요 (원어민 수준)', talent: '외국어/영어', views: 62 },
-];
-
 // =====================================
 // ✅ MainPage 컴포넌트 로직
 // =====================================
@@ -232,7 +212,6 @@ const MainPage = () => {
         setError(null);
 
         const postsRes = await axios.get(`${API_BASE_URL}/api/posts?limit=6`);
-
         setLatestPosts(Array.isArray(postsRes.data) ? postsRes.data : []);
 
         const token = localStorage.getItem('jwtToken');
@@ -263,17 +242,19 @@ const MainPage = () => {
         <StartButton onClick={() => navigate('/matching')}>매칭 시작 →</StartButton>
       </HeroSection>
 
-      {/* 1. 주목할 만한 재능 섹션 제거 및 간단한 안내 */}
       <RandomProfilesSection>
         <SectionTitle>만남은 재능에 오신 것을 환영합니다</SectionTitle>
         <p>아래에서 최신 게시물과 나와 잘 맞는 TOP3 인연을 확인하세요.</p>
+        {error && (
+          <p style={{ color: 'red', marginTop: '10px' }}>
+            {error}
+          </p>
+        )}
       </RandomProfilesSection>
 
-      {/* 2. 💡 지도와 게시물이 결합된 섹션 */}
       <CombinedSection>
         <SectionTitle>가까운 재능 & 최신 소식</SectionTitle>
         <CombinedContent>
-          {/* 2-A. 왼쪽: 매칭 점수 TOP3 */}
           <MapContainer>
             <h3 style={{ color: '#333', marginBottom: '15px' }}>나와 잘 맞는 TOP 3</h3>
             {loading && <p>매칭 점수를 계산 중입니다...</p>}
@@ -283,11 +264,22 @@ const MainPage = () => {
             {!loading && topMatches.length > 0 && (
               <div>
                 {topMatches.map((u) => (
-                  <div key={u.id} style={{ border: '1px solid #eee', borderRadius: 8, padding: 12, marginBottom: 10 }}>
+                  <div
+                    key={u.id}
+                    style={{
+                      border: '1px solid #eee',
+                      borderRadius: 8,
+                      padding: 12,
+                      marginBottom: 10,
+                    }}
+                  >
                     <div style={{ fontWeight: 'bold', color: '#00adb5' }}>{u.nickname}</div>
                     <div style={{ fontSize: 12, color: '#555' }}>{u.bio || '소개 없음'}</div>
                     <div style={{ marginTop: 6, fontSize: 13 }}>
-                      매칭 점수: <span style={{ color: '#d64560', fontWeight: 'bold' }}>{u.match_score}</span>
+                      매칭 점수:{' '}
+                      <span style={{ color: '#d64560', fontWeight: 'bold' }}>
+                        {u.match_score}
+                      </span>
                     </div>
                   </div>
                 ))}
@@ -295,7 +287,6 @@ const MainPage = () => {
             )}
           </MapContainer>
 
-          {/* 2-B. 오른쪽: 최신 게시물 목록 (PostsContainer) */}
           <PostsContainer>
             <h3
               style={{
@@ -308,12 +299,23 @@ const MainPage = () => {
             </h3>
             <PostList>
               {latestPosts.map((post) => (
-                <PostCard key={post.id} onClick={() => navigate(`/posts/${post.id}`)}>
+                <PostCard
+                  key={post.id}
+                  onClick={() => navigate(`/posts/${post.id}`)}
+                >
                   <PostTitle>{post.title}</PostTitle>
-                  <p style={{ fontSize: '0.9em', color: '#00adb5', marginBottom: '5px' }}>
+                  <p
+                    style={{
+                      fontSize: '0.9em',
+                      color: '#00adb5',
+                      marginBottom: '5px',
+                    }}
+                  >
                     작성자: {post.author_nickname || '익명'}
                   </p>
-                  <p style={{ fontSize: '0.8em', color: '#888' }}>등록일: {new Date(post.created_at).toLocaleString()}</p>
+                  <p style={{ fontSize: '0.8em', color: '#888' }}>
+                    등록일: {new Date(post.created_at).toLocaleString()}
+                  </p>
                 </PostCard>
               ))}
             </PostList>
