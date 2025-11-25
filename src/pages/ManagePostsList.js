@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import axios from 'axios'; // axios 추가
 
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000';
 // ... (스타일 컴포넌트 유지) ...
 
 const ManagePostsList = () => {
@@ -14,7 +15,8 @@ const ManagePostsList = () => {
     const fetchPosts = async () => {
       try {
         // 토큰이 필요하다면 헤더에 추가 (현재 백엔드는 조회 시 인증 불필요)
-        const response = await axios.get('http://localhost:3000/api/posts');
+        const response = await axios.get(`${API_BASE_URL}/api/posts`);
+
         setPosts(response.data); // 받아온 데이터로 상태 업데이트
       } catch (error) {
         console.error("게시물 로드 실패:", error);

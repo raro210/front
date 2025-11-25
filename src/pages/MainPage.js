@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import ProfileCard from '../components/ProfileCard';
 import axios from 'axios';
 
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000';
+
 // =====================================
 // ✅ Styled Components 정의 (모바일 규격 포함)
 // =====================================
@@ -229,14 +231,16 @@ const MainPage = () => {
         setLoading(true);
         setError(null);
 
-        const postsRes = await axios.get('http://localhost:3000/api/posts?limit=6');
+        const postsRes = await axios.get(`${API_BASE_URL}/api/posts?limit=6`);
+
         setLatestPosts(Array.isArray(postsRes.data) ? postsRes.data : []);
 
         const token = localStorage.getItem('jwtToken');
         if (token) {
-          const topRes = await axios.get('http://localhost:3000/api/matches/top3', {
+          const topRes = await axios.get(`${API_BASE_URL}/api/matches/top3`, {
             headers: { Authorization: `Bearer ${token}` }
           });
+
           setTopMatches(Array.isArray(topRes.data) ? topRes.data : []);
         } else {
           setTopMatches([]);
